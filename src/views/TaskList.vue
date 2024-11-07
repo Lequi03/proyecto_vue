@@ -1,45 +1,51 @@
 <template>
-    <div>
-        <h1>Lista de Tareas</h1>
-        <button @click="fetchTasks">Cargar Tareas</button>
-        <div v-if="tasks.length > 0">
-            <div v-for="task in tasks" :key="task.id">
-                <div>
-                    <h5 :style="{ textDecoration: task.completed ? 'line-through' : 'none' }">{{ task.todo }}</h5>
-                    <span>{{ task.completed ? 'Completada' : 'Pendiente' }}</span>
-                    <button @click="toggleTaskCompletion(task)">
-                        {{ task.completed ? 'Desmarcar' : 'Completar' }}
-                    </button>
-                    <button @click="deleteTask(task)">Eliminar</button>
-                </div>
+    <div class="container mt-4">
+        <!-- Título con el color solicitado -->
+        <h1 class="text-center mb-4 title">Lista de Tareas</h1>
+
+        <!-- Botón con icono centrado -->
+        <div class="text-center mb-3">
+            <button @click="fetchTasks" class="btn-custom d-inline-flex justify-content-center align-items-center">
+                <i class="bi bi-cloud-download me-2"></i>Cargar Tareas
+            </button>
+        </div>
+
+        <!-- Mostrar las tareas traídas de la API -->
+        <div class="row">
+            <div class="col-12 mb-4" v-for="task in tasks" :key="task.id">
+                <TodoItem :title="task.todo" :completed="task.completed" @toggle-completion="toggleTaskCompletion(task)"
+                    @delTodo="deleteTask(task)" />
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import TodoItem from "@/components/TodoItem.vue";
+import axios from "axios";
+
 export default {
     name: "TaskList",
+    components: { TodoItem },
     data() {
         return {
-            tasks: [], // Almacenamiento local de las tareas traídas de la API
+            tasks: [],
         };
     },
     methods: {
-        // Llamada para obtener las tareas desde la API externa
         fetchTasks() {
-            // Aquí deberían realizar la solicitud a la API usando axios o fetch.
-            // La URL que usaremos es: https://dummyjson.com/todos
-
-            // Sugerencia: Intentar implementarlo con axios o fetch
+            axios
+                .get("https://dummyjson.com/todos")
+                .then((response) => {
+                    this.tasks = response.data.todos; 
+                })
+                .catch((error) => {
+                    console.error("Error fetching tasks:", error);
+                });
         },
-
-        // Cambiar el estado de una tarea (completada/no completada)
         toggleTaskCompletion(task) {
             task.completed = !task.completed;
         },
-
-        // Eliminar la tarea seleccionada
         deleteTask(task) {
             this.tasks = this.tasks.filter((t) => t.id !== task.id);
         },
@@ -48,5 +54,36 @@ export default {
 </script>
 
 <style scoped>
-/* Aquí pueden experimentar con estilos de tu preferencia */
+.container {
+    max-width: 800px;
+    padding: 20px;
+}
+
+.title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    margin-bottom: 30px;
+    color: #4700a6; /* Color del título */
+}
+
+/* Estilo personalizado para el botón */
+.btn-custom {
+    background-color: #4700a6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.btn-custom:hover {
+    background-color: #cca6ff; /* Color de fondo al pasar el ratón */
+    color: #4700a6; /* Color del texto al hacer hover */
+}
+
+.btn-custom i {
+    margin-right: 0.5rem; /* Espacio entre el icono y el texto */
+}
 </style>

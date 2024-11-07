@@ -1,110 +1,180 @@
 <template>
-    <div class="add-task-container">
-        <h1>Añadir Tarea</h1>
-        <div class="input-group">
-            <input 
-                v-model="newTask" 
-                @keyup.enter="addTask" 
-                placeholder="Añadir nueva tarea" 
-                class="task-input"
-            />
-            <button @click="addTask" class="add-button">Añadir</button>
-        </div>
-
-        <div v-if="tasks.length > 0" class="task-list">
-            <div v-for="task in tasks" :key="task.id" class="task-item">
-                <span :class="{ completed: task.completed }">{{ task.todo }}</span>
-                <div>
-                    <button @click="toggleTaskCompletion(task)">
-                        {{ task.completed ? 'Desmarcar' : 'Completar' }}
-                    </button>
-                    <button @click="deleteTask(task)">Eliminar</button>
-                </div>
-            </div>
-        </div>
+  <div class="container mt-4">
+    <h1 class="text-center mb-4">Añadir Tarea</h1>
+    <!-- Título -->
+    <div class="input-group mb-3">
+      <input
+        v-model="newTask"
+        @keyup.enter="addTask"
+        placeholder="Añadir nueva tarea"
+        class="form-control task-input"
+        aria-label="Nueva tarea"
+      />
+      <!-- Botón -->
+      <button @click="addTask" class="btn btn-add">Añadir</button>
     </div>
+
+    <div class="row mt-4" v-if="tasks.length > 0">
+      <div class="col-12 mb-4" v-for="task in tasks" :key="task.id">
+        <div class="card mb-3 border-2 border-[#4700a6]">
+          <div
+            class="card-body d-flex justify-content-between align-items-center"
+          >
+            <div class="flex-grow-1 me-2">
+              <h5
+                class="card-title m-0"
+                :class="{
+                  'text-decoration-line-through-black': task.completed
+                }"
+              >
+                {{ task.todo }}
+              </h5>
+              <span
+                class="badge status-badge"
+                :class="{
+                  'bg-success': task.completed,
+                  'bg-warning': !task.completed,
+                }"
+              >
+                {{ task.completed ? "Completada" : "Pendiente" }}
+              </span>
+            </div>
+            <div class="d-flex">
+              <!-- Botón para marcar la tarea como completada o pendiente -->
+              <button
+                @click="toggleTaskCompletion(task)"
+                :class="[ 
+                  'p-2 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2', 
+                  { 'btn btn-outline-warning': task.completed, 'btn btn-outline-success': !task.completed }
+                ]"
+              >
+                <i
+                  :class="[
+                    { 'bi bi-slash-circle-fill': task.completed, 'bi bi-check-square': !task.completed }
+                  ]"
+                ></i>
+              </button>
+              <button
+                @click="deleteTask(task)"
+                class="btn btn-outline-danger"
+                aria-label="Eliminar tarea"
+              >
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
 export default {
-    name: "AddTask",
-    data() {
-        return {
-            newTask: "", // Campo de entrada para la nueva tarea
-            tasks: [],   // Lista de tareas locales
-        };
+  name: "AddTask",
+  data() {
+    return {
+      newTask: "",
+      tasks: [],
+    };
+  },
+  methods: {
+    addTask() {
+      if (this.newTask.trim() === "") return;
+
+      const newTask = {
+        todo: this.newTask,
+        completed: false,
+        id: Date.now(),
+      };
+
+      this.tasks.unshift(newTask); // Añadir a la lista local
+      this.newTask = "";
     },
-    methods: {
-        addTask() {
-            if (this.newTask.trim() === "") return;
-
-            const newTask = {
-                todo: this.newTask,
-                completed: false,
-                id: Date.now(), 
-            };
-
-            // Añadir la nueva tarea al inicio de la lista
-            this.tasks.unshift(newTask);
-            this.newTask = ""; // Limpiar el campo de entrada después de agregar
-        },
-
-        // Elimina una tarea específica de la lista
-        deleteTask(task) {
-            this.tasks = this.tasks.filter((t) => t.id !== task.id);
-        },
-
-        // Cambia el estado de la tarea entre completada y no completada
-        toggleTaskCompletion(task) {
-            task.completed = !task.completed;
-        },
+    deleteTask(task) {
+      // Filtrar la tarea a eliminar
+      this.tasks = this.tasks.filter((t) => t.id !== task.id);
     },
+    toggleTaskCompletion(task) {
+      task.completed = !task.completed;
+    },
+  },
 };
 </script>
 
 <style scoped>
-.add-task-container {
-    padding: 20px;
-    max-width: 400px;
-    margin: 0 auto;
+.container {
+  max-width: 800px;
+  padding: 20px;
 }
 
-.input-group {
-    display: flex;
-    margin-bottom: 10px;
+h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #4700a6;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  text-align: center; /* Centrar el título */
+}
+
+/* Cambiar el color del botón */
+.btn-add {
+  background-color: #4700a6;
+  color: white;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.btn-add:hover {
+  background-color: #cca6ff;
+}
+
+button {
+  padding: 5px 15px;
+  border: none;
+  border-radius: 4px;
+  margin-right: 10px;
 }
 
 .task-input {
-    flex-grow: 1;
-    padding: 8px;
-    margin-right: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+  border-radius: 25px;
+  transition: border-color 0.2s;
 }
 
-.add-button {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
+.task-input:focus {
+  outline: none;
+  box-shadow: 0 0 30px rgba(204, 166, 255, 1.2);
 }
 
-.task-list {
-    margin-top: 20px;
+.card {
+  border-color: #4700a6 !important;
 }
 
-.task-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #eee;
+.card-title {
+  font-weight: bold;
+  overflow-wrap: break-word;
+  max-height: 3em;
+  overflow: hidden;
+  text-align: center; /* Centrar el texto dentro de la tarjeta */
 }
 
-.completed {
-    text-decoration: line-through;
-    color: gray;
+.text-decoration-line-through-black {
+  text-decoration: line-through;
+  text-decoration-color: black; /* Cambiar el color del tachado a negro */
 }
+
+.text-gray-500 {
+  color: #4700a6;
+}
+
+/* Estilos para el badge (estado completada/pendiente) */
+.status-badge {
+  display: inline-block;
+  width: 100px;
+  text-align: center;
+  font-size: 0.9rem;
+  padding: 5px;
+  border-radius: 12px;
+  font-weight: bold;
+}
+
 </style>
